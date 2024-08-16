@@ -28,7 +28,7 @@ interface CustomProps {
   dateFormat?: string;
   showTimeSelect?: boolean;
   children?: React.ReactNode;
-  renderSkeleton?: (field: any) => React.ReactNode;
+  renderSkeleton?: (field: any) => React.ReactNode; // for animations
 }
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
