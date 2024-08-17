@@ -1,0 +1,8 @@
+create database
+create related collection for each model
+save each collection strimngs and database uri in .env file
+
+use storage to crete a bucket and store images and other things
+
+configure the appwrite.config.ts file
+then define the attributes of database schemas
