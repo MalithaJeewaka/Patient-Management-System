@@ -7,12 +7,17 @@ import { Form, FormControl } from "@/components/ui/form";
 import CustomFormField from "../CustomFormField";
 import SubmitButton from "../ui/SubmitButton";
 import { useState } from "react";
-import { UserFormValidation } from "@/lib/validation";
+import { PatientFormValidation, UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
-import { createUser } from "@/lib/actions/patient.actions";
+import { createUser, registerPatient } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Doctors, GenderOptions, IdentificationTypes } from "@/constants";
+import {
+  Doctors,
+  GenderOptions,
+  IdentificationTypes,
+  PatientFormDefaultValues,
+} from "@/constants";
 import { Label } from "../ui/label";
 import Image from "next/image";
 import { Select, SelectContent, SelectItem } from "../ui/select";
@@ -23,9 +28,11 @@ const RegisterForm = ({ user }: { user: User }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof PatientFormValidation>>({
+    resolver: zodResolver(PatientFormValidation),
+    // @ts-ignore
     defaultValues: {
+      ...PatientFormDefaultValues,
       name: "",
       email: "",
       phone: "",
@@ -33,21 +40,41 @@ const RegisterForm = ({ user }: { user: User }) => {
   });
 
   // 2. Define a submit handler.
-  const onSubmit = async ({
-    name,
-    email,
-    phone,
-  }: z.infer<typeof UserFormValidation>) => {
+  const onSubmit = async (values: z.infer<typeof PatientFormValidation>) => {
     setIsLoading(true);
 
+    let formData;
+
+    // befor we get all the values from the form we have to extract uploaded files
+    if (
+      values.identificationDocument &&
+      values.identificationDocument.length > 0
+    ) {
+      // blob file is type that contain a files that can read from brower
+      const blobFile = new Blob([values.identificationDocument[0]], {
+        type: values.identificationDocument[0].type, //file type
+      });
+
+      // this FormData is built in object. it has key value pairs.
+      // we can send files as blob files. it is easy
+      //we have to send this as blob file then we can extract these blob file type in server action
+      formData = new FormData();
+      formData.append("blobFile", blobFile);
+      formData.append("fileName", values.identificationDocument[0].name);
+    }
+
     try {
-      const userData = { name, email, phone };
+      const patientData = {
+        ...values,
+        userId: user.$id,
+        birthDate: new Date(values.birthDate),
+        identificationDocument: formData,
+      };
 
-      const user = await createUser(userData);
+      // @ts-ignore
+      const patient = await registerPatient(patientData);
 
-      if (user) {
-        router.push(`/patients/${user.$id}/register`);
-      }
+      if (patient) router.push(`/patient/${user.$id}/new-appointment`);
     } catch (error) {
       console.log(error);
     }
@@ -313,7 +340,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         <CustomFormField
           fieldType={FormFieldType.CHECKBOX}
           control={form.control}
-          name="privacyConcent"
+          name="privacyConsent"
           label="I consent to privacy policy"
         />
 
