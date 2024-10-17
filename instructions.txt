@@ -1,0 +1,4 @@
+appointment form 
+    * create the form 
+    * -- export default function NewAppointment({params: {userId}}: SearchParamProps){} -- this is how u get the url ids
+    * 
