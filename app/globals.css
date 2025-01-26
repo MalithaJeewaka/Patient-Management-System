@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 /* ========================================== TAILWIND STYLES */
+
 @layer base {
   /* Remove scrollbar */
   .remove-scrollbar::-webkit-scrollbar {

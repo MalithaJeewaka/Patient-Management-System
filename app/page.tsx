@@ -1,12 +1,15 @@
 import PatientForm from "@/components/forms/PatientForm";
+import PasskeyModal from "@/components/PasskeyModal";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Home() {
+// extracting search param from the address
+export default function Home({ searchParams }: SearchParamProps) {
+  const isAdmin = searchParams.admin === "true";
   return (
     <div className="flex h-screen max-h-screen">
-      {/* TODO: OTP verification | passkey modal */}
+      {isAdmin && <PasskeyModal />}
 
       <section className="remove-scrollbar container  my-auto">
         <div className="sub-container max-w-[496px]">
@@ -20,12 +23,13 @@ export default function Home() {
 
           <PatientForm />
 
-          <div className="tetx-14-regular mt-20 flex justify-between ">
+          <div className="text-14-regular mt-20 flex justify-between ">
             <p className="justify-items-end text-dark-600 xl:text-left">
               © 2024 CarePulse
             </p>
 
-            <Link href={"/?adimn=true"} className="text-green-500">
+            {/* search param is added */}
+            <Link href={"/?admin=true"} className="text-green-500">
               Admin
             </Link>
           </div>
